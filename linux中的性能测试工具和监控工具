@@ -1,0 +1,10 @@
+性能测试：
+ab
+
+　　1.(get方式)./ab -n 1000 -c 1000 -k http://xxx.xxxxx.com/synth/open/recurls.do?test=true
+
+　　2.(post方式./ab -n 2500 -c 2500 -k -p postfile.ab http://xxx.xxxx.com/synth/open/getTheme.do postfile.ab中为json数据)
+
+　　其中参数n为请求的次数，c为一次请求的并发次数，-k为keep_alive,一般出现链接被重置的错误时最好带上-k的参数。
+　　
+监控工具：
