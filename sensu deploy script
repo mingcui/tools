@@ -1,0 +1,70 @@
+#!/bin/bash
+#Deploy sensu server on centos
+ 
+# Set up erlang repository
+ redhat_release=`cat /etc/redhat-release | awk {'print int($3)'}`
+ cd /tmp
+ wget http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+  rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+  yum install -y erlang-18.1-1.el${redhat_release}
+  
+# Install EPRL repository
+  rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+
+# Set up Install sensu core repository
+    cat > /etc/yum.repos.d/sensu.repo <-END
+      [sensu]
+      name=sensu
+      baseurl=http://repositories.sensuapp.org/yum/$basearch/
+      gpgcheck=0
+      enabled=1
+  END
+
+#Install RabbitMQ
+  rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+  rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v3.5.6/rabbitmq-server-3.5.6-1.noarch.rpm
+  chkconfig rabbitmq-server on
+  /etc/init.d rabbitmq-server start
+
+# Setup RabbitMQ
+  rabbitmqctl add_vhost /sensu        ##create vhost
+  rabbitmqctl add_user sensu secret   ##create user
+  
+# Install Redis
+  yum -y install redis
+  chkconfig redis on
+  /etc/init.d/redis start
+
+# Install sensu
+   
+# Install sensu
+  yum -y install senus
+
+# Configure sensu connection
+  cd /etc/sensu
+  cp config.json.example config.json
+
+# create check
+  cd /etc/sensu/conf.d
+  cat > check_disk.json <-EOF
+  {
+  "checks": {
+      "disk": {
+          "command": "check-disk-usage.rb -w 85 -c 95",
+          "interval": 10,
+         "subscribers": [
+         "test"
+            ]
+         }
+        }
+      }
+  EOF
+
+  
+# start sensu
+/etc/init.d/sensu-server start
+/etc/init.d/sensu-api start
+chkconfig sensu-server on
+chkconfig sensu-api on
+
+
