@@ -55,6 +55,7 @@ cat > check_disk.json <<-EOF
 EOF
 
 # start sensu
+chown -R sensu:sensu /etc/sensu
 /etc/init.d/sensu-server start
 /etc/init.d/sensu-api start
 chkconfig sensu-server on
